@@ -2,6 +2,8 @@ __author__ = 'mh'
 
 # D2Q9 Lattice Boltzmann
 
+from __future__ import division
+
 import numpy as np
 import matplotlib as plt
 
@@ -47,27 +49,13 @@ u = np.zeros(2,(M,N))
 v = np.zeros((M,N))
 
 
-def eqDistTerm(u,v,eqdt):
-    usq = u ** u
-    vsq = v ** v
 
-
-    a = (3./2.)*(usq+vsq)
-
-    usqpvsq = usq + vsq
-
-    upv = u + v
-    upvsq = upv ** upv
 
 # Main Loop
 
-
-# calculate equilibrium distribution function feq
-
-
 # collision
 
-def collision(f,feq,rho,u,w,c,omega):
+def collision(f,rho,u,w,c,omega):
 
     # f[9,M,N]  first dimension is k
     # u[2,M,N]  first dimension is u and v
@@ -76,19 +64,22 @@ def collision(f,feq,rho,u,w,c,omega):
     # w[9]
     # omega[scalar]
 
+    # calculate one k at a time, use matrices
     for k in range(0,9):
 
+        # helpers for feqk
         cx = c[k,0]
         cy = c[k,1]
         wk = w[k]
 
         ckTuij = (cx * u[0,:,:]) + (cy * u[1,:,:])
-        uijTuij = (np.square(u[0])+np.square(u[1]))
+        uijTuij = (np.square(u[0]) + np.square(u[1]))
 
-        f[k,:,:] = f[k,:,:] * (1. - omega) + (rho * wk * (1. + 3. * ckTuij + 4.5 * np.square(ckTuij) - 1.5 * uijTuij)) * omega
+        # update fk with feqk
+        f[k,:,:] *= (1. - omega)
+        f[k,:,:] += (rho * wk * (1. + 3. * ckTuij + 4.5 * np.square(ckTuij) - 1.5 * uijTuij)) * omega
 
-
-
+        return f
 
 # streaming
 
@@ -107,11 +98,46 @@ def streaming(f):
     f[7,1:,:(n-1)] = f[7,:(m-1),1:]     # stream one step SW
     f[8,1:,1:] = f[8,:(m-1),:(n-1)]     # stream one step SE
 
+    return f
+
 
 # calculate distribution function at boundaries
 
 
 # calculate density and velocity component
+
+def density(f,rho):
+
+     # f[9,M,N]  first dimension is k
+    rho = np.sum(f,axis=0)    # new rho
+
+    return rho
+
+
+def velocity(f,rho,u,c):
+
+    # f[9,M,N]  first dimension is k
+    # rho[M,N]
+    # u[2,M,N]  first dimension is u and v
+    # c[9,2]    first dimension is k, second is cx and cy
+
+    u[:] = 0.   # set all velocities to 0
+
+    # helpers
+    uij = u[0,:,:]
+    vij = u[1,:,:]
+
+    cx = c[:,0]
+    cy = c[:,1]
+
+    for k in range(0,9):
+
+        uij += f[k,:,:] * cx[k]
+        vij += f[k,:,:] * cy[k]
+
+    u /= rho
+
+    return u
 
 
 # End Main Loop
