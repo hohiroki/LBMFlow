@@ -1,5 +1,10 @@
 __author__ = 'mh'
 
+# D2Q9 Lattice Boltzmann
+
+import numpy as np
+import matplotlib as plt
+
 # input data
 
 
@@ -14,16 +19,45 @@ width = 0.2      # width of cavity m
 reynolds = velocity * height / viscosity    # macroscale reynolds number
 
 # LBM values
-aspect = width / height    # aspect ratio of domain
+aspect = width / height         # aspect ratio of domain
 
-reynolds_lattice = reynolds # keep same reynolds
-viscosity_lattice = 0.01    # choose so we keep same reynolds
-velocity_lattice = 0.1      # choose so we keep same reynolds
+reynolds_lattice = reynolds     # keep same reynolds
+viscosity_lattice = 0.01        # choose so we keep same reynolds
+velocity_lattice = 0.1          # choose so we keep same reynolds
 
-N = int(round(reynolds_lattice * viscosity_lattice / velocity_lattice)) # get lattices in x-direction
-M = int(round(height * aspect)) # lattices in y-direction we want deltax = deltay
+N = int(round(reynolds_lattice * viscosity_lattice / velocity_lattice))     # lattices in x-direction
+M = int(round(height * aspect))                                             # lattices in y-direction we want deltax = deltay
+
+# weights for D2Q9
+w = np.zeros(9)
+w[0] = 4./9.
+w[1:5] = 1./9.
+w[5:9] = 1./36.
+
+# f and feq grids MxNx9
+f = np.zeros((M,N,9))       # distribution function
+feq = np.zeros((M,N,9))     # equilibrium function
+
+rho = np.zeros((M,N))
+
+eqdt = np.zeros((M,N,9))    # equilibrium distribution term
+
+u = np.zeros(2,(M,N))
+
+v = np.zeros((M,N))
 
 
+def eqDistTerm(u,v,eqdt):
+    usq = u ** u
+    vsq = v ** v
+
+
+    a = (3./2.)*(usq+vsq)
+
+    usqpvsq = usq + vsq
+
+    upv = u + v
+    upvsq = upv ** upv
 
 # Main Loop
 
@@ -33,8 +67,45 @@ M = int(round(height * aspect)) # lattices in y-direction we want deltax = delta
 
 # collision
 
+def collision(f,feq,rho,u,w,c,omega):
+
+    # f[9,M,N]  first dimension is k
+    # u[2,M,N]  first dimension is u and v
+    # c[9,2]    first dimension is k, second is cx and cy
+    # rho[M,N]
+    # w[9]
+    # omega[scalar]
+
+    for k in range(0,9):
+
+        cx = c[k,0]
+        cy = c[k,1]
+        wk = w[k]
+
+        ckTuij = (cx * u[0,:,:]) + (cy * u[1,:,:])
+        uijTuij = (np.square(u[0])+np.square(u[1]))
+
+        f[k,:,:] = f[k,:,:] * (1. - omega) + (rho * wk * (1. + 3. * ckTuij + 4.5 * np.square(ckTuij) - 1.5 * uijTuij)) * omega
+
+
+
 
 # streaming
+
+def streaming(f):
+    # k = f.shape[0]
+    m = f.shape[1]
+    n = f.shape[2]
+
+    f[1,:,1:] = f[1,:,:(n-1)]  # stream one step E
+    f[2,:(m-1),:] = f[2,1:,:]  # stream one step N
+    f[3,:,:(n-1)] = f[3,:,1:]  # stream one step W
+    f[4,1:,:] = f[4,:(m-1),:]  # stream one step S
+
+    f[5,:(m-1),1:] = f[5,1:,:(n-1)]     # stream one step NE
+    f[6,:(m-1),:(n-1)] = f[6,1:,1:]     # stream one step NW
+    f[7,1:,:(n-1)] = f[7,:(m-1),1:]     # stream one step SW
+    f[8,1:,1:] = f[8,:(m-1),:(n-1)]     # stream one step SE
 
 
 # calculate distribution function at boundaries
