@@ -49,6 +49,7 @@ u = np.zeros(2,(M,N))
 v = np.zeros((M,N))
 
 
+# TODO define all constants and matrices
 
 
 # Main Loop
@@ -103,6 +104,63 @@ def streaming(f):
 
 # calculate distribution function at boundaries
 
+def westBoundary(f):
+    # f[9,M,N]  first dimension is k
+
+    # bounce back
+    f[1,:,0] = f[3,:,0]
+    f[5,:,0] = f[7,:,0]
+    f[8,:,0] = f[6,:,0]
+
+    return f
+
+def eastBoundary(f):
+    # f[9,M,N]  first dimension is k
+
+    # bounce back
+    f[3,:,-1] = f[1,:,-1]
+    f[7,:,-1] = f[5,:,-1]
+    f[6,:,-1] = f[8,:,-1]
+
+    return f
+
+def southBoundary(f):
+    # f[9,M,N]  first dimension is k
+
+    # bounce back
+    f[2,-1,:] = f[4,-1,:]
+    f[5,-1,:] = f[7,-1,:]
+    f[6,-1,:] = f[8,-1,:]
+
+    return f
+
+def northBoundary(f,u):
+    # f[9,M,N]  first dimension is k
+    # u[2,M,N]  first dimension is u and v
+
+    # ux0 = u[0,0,:]
+    # f0 = f[0,0,:]
+    # f1 = f[1,0,:]
+    # f2 = f[2,0,:]
+    # f3 = f[3,0,:]
+    # f4 = f[4,0,:]
+    # f5 = f[5,0,:]
+    # f6 = f[6,0,:]
+    # f7 = f[7,0,:]
+    # f8 = f[8,0,:]
+
+    # calculate three unknown fk and rhoN
+
+    rhoN = f[0,0,:] + f[1,0,:] + f[3,0,:] + 2 * (f[2,0,:] + f[5,0,:] + f[6,0,:])
+
+    s = 0.5 * rhoN * u[0,0,:]    # TODO is this correct? or should it be 1/6?
+
+    f[4,0,:] = f[2,0,:]
+    f[7,0,:] = f[5,0,:] + 0.5 * (f[1,0,:] - f[3,0,:]) - s
+    f[8,0,:] = f[6,0,:] + 0.5 * (f[3,0,:] - f[1,0,:]) + s
+
+    return f
+
 
 # calculate density and velocity component
 
@@ -123,7 +181,7 @@ def velocity(f,rho,u,c):
 
     u[:] = 0.   # set all velocities to 0
 
-    # helpers
+    # helpers for clarity
     uij = u[0,:,:]
     vij = u[1,:,:]
 
