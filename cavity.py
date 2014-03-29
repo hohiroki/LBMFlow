@@ -1,58 +1,10 @@
+from __future__ import division
+
 __author__ = 'mh'
 
 # D2Q9 Lattice Boltzmann
 
-from __future__ import division
-
 import numpy as np
-import matplotlib as plt
-
-# input data
-
-
-# fluid physics
-viscosity = 1.2*1e-3    # kinematic viscosity m2/s (oil at 15 deg C)
-
-velocity = 6.0           # moving lid m/s
-
-height = 0.2     # height of cavity m
-width = 0.2      # width of cavity m
-
-reynolds = velocity * height / viscosity    # macroscale reynolds number
-
-# LBM values
-aspect = width / height         # aspect ratio of domain
-
-reynolds_lattice = reynolds     # keep same reynolds
-viscosity_lattice = 0.01        # choose so we keep same reynolds
-velocity_lattice = 0.1          # choose so we keep same reynolds
-
-N = int(round(reynolds_lattice * viscosity_lattice / velocity_lattice))     # lattices in x-direction
-M = int(round(height * aspect))                                             # lattices in y-direction we want deltax = deltay
-
-# weights for D2Q9
-w = np.zeros(9)
-w[0] = 4./9.
-w[1:5] = 1./9.
-w[5:9] = 1./36.
-
-# f and feq grids MxNx9
-f = np.zeros((M,N,9))       # distribution function
-feq = np.zeros((M,N,9))     # equilibrium function
-
-rho = np.zeros((M,N))
-
-eqdt = np.zeros((M,N,9))    # equilibrium distribution term
-
-u = np.zeros(2,(M,N))
-
-v = np.zeros((M,N))
-
-
-# TODO define all constants and matrices
-
-
-# Main Loop
 
 # collision
 
@@ -104,7 +56,7 @@ def streaming(f):
 
 # calculate distribution function at boundaries
 
-def westBoundary(f):
+def westBoundary(f,u0):
     # f[9,M,N]  first dimension is k
 
     # bounce back
@@ -114,7 +66,7 @@ def westBoundary(f):
 
     return f
 
-def eastBoundary(f):
+def eastBoundary(f,u0):
     # f[9,M,N]  first dimension is k
 
     # bounce back
@@ -124,7 +76,7 @@ def eastBoundary(f):
 
     return f
 
-def southBoundary(f):
+def southBoundary(f,u0):
     # f[9,M,N]  first dimension is k
 
     # bounce back
@@ -134,9 +86,10 @@ def southBoundary(f):
 
     return f
 
-def northBoundary(f,u):
+def northBoundary(f,u0):
     # f[9,M,N]  first dimension is k
     # u[2,M,N]  first dimension is u and v
+    # u0[2]     BC x and y
 
     # ux0 = u[0,0,:]
     # f0 = f[0,0,:]
@@ -153,11 +106,14 @@ def northBoundary(f,u):
 
     rhoN = f[0,0,:] + f[1,0,:] + f[3,0,:] + 2 * (f[2,0,:] + f[5,0,:] + f[6,0,:])
 
-    s = 0.5 * rhoN * u[0,0,:]    # TODO is this correct? or should it be 1/6?
+    #s = (1./6) * rhoN * u0[0]
+    s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
 
     f[4,0,:] = f[2,0,:]
-    f[7,0,:] = f[5,0,:] + 0.5 * (f[1,0,:] - f[3,0,:]) - s
+    f[7,0,:] = f[5,0,:] + 0.5 * (f[1,0,:] - f[3,0,:]) - s # TODO is it correct to assume (f1-f3)=0 ?
     f[8,0,:] = f[6,0,:] + 0.5 * (f[3,0,:] - f[1,0,:]) + s
+    # f[7,0,:] = f[5,0,:] - s
+    # f[8,0,:] = f[6,0,:] + s
 
     return f
 
@@ -182,23 +138,20 @@ def velocity(f,rho,u,c):
     u[:] = 0.   # set all velocities to 0
 
     # helpers for clarity
-    uij = u[0,:,:]
-    vij = u[1,:,:]
+    # uij = u[0,:,:]
+    # vij = u[1,:,:]
 
     cx = c[:,0]
     cy = c[:,1]
 
     for k in range(0,9):
 
-        uij += f[k,:,:] * cx[k]
-        vij += f[k,:,:] * cy[k]
+        u[0,:,:] += f[k,:,:] * cx[k]
+        u[1,:,:] += f[k,:,:] * cy[k]
 
     u /= rho
 
     return u
 
 
-# End Main Loop
 
-
-# output data
