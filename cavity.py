@@ -214,8 +214,8 @@ def northBoundary(f,u0):
     #s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
 
     f[4,0,1:-1] = f[2,0,1:-1]
-    #f[7,0,:] = f[5,0,:] + 0.5 * (f[1,0,:] - f[3,0,:]) - s # TODO is it correct to assume (f1-f3)=0 ?
-    #f[8,0,:] = f[6,0,:] + 0.5 * (f[3,0,:] - f[1,0,:]) + s
+    #f[7,0,1:-1] = f[5,0,1:-1] + 0.5 * (f[1,0,1:-1] - f[3,0,1:-1]) - s # TODO is it correct to assume (f1-f3)=0 ?
+    #f[8,0,1:-1] = f[6,0,1:-1] + 0.5 * (f[3,0,1:-1] - f[1,0,1:-1]) + s
     f[7,0,1:-1] = f[5,0,1:-1] - s
     f[8,0,1:-1] = f[6,0,1:-1] + s
 
@@ -235,7 +235,7 @@ def densityTwo(f):
 
 def density(f):
     rho = np.sum(f,axis=0)
-    #rho[0,:] = f[0,0,:] + f[1,0,:] + f[3,0,:] + (2.0 * (f[2,0,:] + f[5,0,:] + f[6,0,:]))
+    rho[0,1:-1] = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2.0 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
     return rho
 
 def otherVelocity(f, rho,c):

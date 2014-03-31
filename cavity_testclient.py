@@ -62,15 +62,15 @@ for step in range(0,nsteps):
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111)
+#ax = fig.add_subplot(111)
 # ax.imshow(u[0,:,:]/np.linalg.norm(u), cmap='gray', interpolation='nearest')
 # ax.imshow(u[1,:,:]/np.linalg.norm(u), cmap='gray', interpolation='nearest')
 # ax.imshow(u[0,:,:], cmap='gray', interpolation='nearest')
 # ax.imshow(u[1,:,:], cmap='gray', interpolation='nearest')
-ax.imshow(np.sqrt(u[0]**2 + u[1]**2), cmap=cm.Reds)
+#ax.imshow(np.sqrt(u[0]**2 + u[1]**2), cmap=cm.Reds)
 
 
-#plt.streamplot(np.arange(0,M),np.arange(0,N),u[0,:,:],u[1,:,:])
+plt.streamplot(np.arange(0,M),np.arange(0,N),u[0,:,:],u[1,:,:])
 # plt.plot(u[0,:,:])
 # plt.plot(u[1,:,:])
 
