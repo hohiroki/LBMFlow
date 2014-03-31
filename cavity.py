@@ -208,16 +208,16 @@ def northBoundary(f,u0):
 
     # calculate three unknown fk and rhoN
 
-    rhoN = f[0,0,:] + f[1,0,:] + f[3,0,:] + (2 * (f[2,0,:] + f[5,0,:] + f[6,0,:]))
+    rhoN = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
 
     s = (1./6) * rhoN * u0[0]
     #s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
 
-    #f[4,0,:] = f[2,0,:]
+    f[4,0,1:-1] = f[2,0,1:-1]
     #f[7,0,:] = f[5,0,:] + 0.5 * (f[1,0,:] - f[3,0,:]) - s # TODO is it correct to assume (f1-f3)=0 ?
     #f[8,0,:] = f[6,0,:] + 0.5 * (f[3,0,:] - f[1,0,:]) + s
-    f[7,0,:] = f[5,0,:] - s
-    f[8,0,:] = f[6,0,:] + s
+    f[7,0,1:-1] = f[5,0,1:-1] - s
+    f[8,0,1:-1] = f[6,0,1:-1] + s
 
     return f
 
@@ -229,12 +229,14 @@ def densityTwo(f):
      # f[9,M,N]  first dimension is k
     rho = np.sum(f,axis=0)    # new rho
     #rho = f[0,:,:]+f[1,:,:]+f[2,:,:]+f[3,:,:]+f[4,:,:]+f[5,:,:]+f[6,:,:]+f[7,:,:]+f[8,:,:]
-    rho[0,:] = f[0,0,:] + f[1,0,:] + f[3,0,:] + (2.0 * (f[2,0,:] + f[5,0,:] + f[6,0,:]))
+    #rho[0,:] = f[0,0,:] + f[1,0,:] + f[3,0,:] + (2.0 * (f[2,0,:] + f[5,0,:] + f[6,0,:]))
 
     return rho
 
 def density(f):
-    return np.sum(f,axis=0)
+    rho = np.sum(f,axis=0)
+    #rho[0,:] = f[0,0,:] + f[1,0,:] + f[3,0,:] + (2.0 * (f[2,0,:] + f[5,0,:] + f[6,0,:]))
+    return rho
 
 def otherVelocity(f, rho,c):
 
@@ -277,6 +279,7 @@ def velocity(f,rho,c):
     #u /= rho
 
     return np.array((fcx.sum(0)/rho,fcy.sum(0)/rho))
+    #return np.dot(c.transpose(), f.transpose((1,0,2)))/rho
 
 
 

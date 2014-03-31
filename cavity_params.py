@@ -44,7 +44,7 @@ u = np.zeros((2,M,N))       # velocity
 
 # boundary condition
 u0 = np.array((velocity_lattice,0.))
-u[0,0,1:-1] = velocity_lattice     # load BC into north boundary
+#u[0,0,1:-1] = velocity_lattice     # load BC into north boundary
 
 # initial condition
 rho[:,:] = 5.

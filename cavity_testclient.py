@@ -26,14 +26,17 @@ print 'rho.shape:'+str(rho.shape)
 print 'weights:'+str(w)
 print 'u0:'+str(u0)
 
-nsteps = 200
+nsteps = 20000
 
 
+print 'sum f:'+str(f.sum())
+print 'sum rho:'+str(rho.sum())
+#print 'sum feq:'+str(feq.sum())
 
 for step in range(0,nsteps):
 
     feq = equilibrium(rho,u,w,c)
-    f = collision(f,feq,omega)
+    f = collisionTwo(f,feq,omega)
     f = streaming(f)
     f = westBoundary(f)
     f = eastBoundary(f)
@@ -42,9 +45,10 @@ for step in range(0,nsteps):
     rho = density(f)
     u = velocity(f,rho,c)
 
-    if (step % 10) == 0:
+    if (step % 100) == 0:
         print 'sum f:'+str(f.sum())
         print 'sum rho:'+str(rho.sum())
+        print 'sum feq:'+str(feq.sum())
     if (step % 100) == 0:
         print 'Done step:'+str(step)
 
