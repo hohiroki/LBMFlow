@@ -26,7 +26,7 @@ print 'rho.shape:'+str(rho.shape)
 print 'weights:'+str(w)
 print 'u0:'+str(u0)
 
-nsteps = 20000
+nsteps = 2000
 
 
 print 'sum f:'+str(f.sum())
@@ -36,13 +36,16 @@ print 'sum rho:'+str(rho.sum())
 for step in range(0,nsteps):
 
     feq = equilibrium(rho,u,w,c)
-    f = collisionTwo(f,feq,omega)
+    f = collision(f,feq,omega)
+
     f = streaming(f)
+
     f = westBoundary(f)
     f = eastBoundary(f)
     f = southBoundary(f)
-    f = northBoundary(f,u0)
-    rho = density(f)
+    f,rhoN = northBoundary(f,u0)
+
+    rho = density(f,rhoN)
     u = velocity(f,rho,c)
 
     if (step % 100) == 0:
@@ -61,15 +64,16 @@ for step in range(0,nsteps):
 
 
 
-fig = plt.figure()
-#ax = fig.add_subplot(111)
+fig = plt.figure(1)
+ax = fig.add_subplot(111)
 # ax.imshow(u[0,:,:]/np.linalg.norm(u), cmap='gray', interpolation='nearest')
 # ax.imshow(u[1,:,:]/np.linalg.norm(u), cmap='gray', interpolation='nearest')
 # ax.imshow(u[0,:,:], cmap='gray', interpolation='nearest')
 # ax.imshow(u[1,:,:], cmap='gray', interpolation='nearest')
-#ax.imshow(np.sqrt(u[0]**2 + u[1]**2), cmap=cm.Reds)
+ax.imshow(np.sqrt(u[0]**2 + u[1]**2), cmap=cm.Reds)
+plt.show()
 
-
+plt.figure(2)
 plt.streamplot(np.arange(0,M),np.arange(0,N),u[0,:,:],u[1,:,:])
 # plt.plot(u[0,:,:])
 # plt.plot(u[1,:,:])

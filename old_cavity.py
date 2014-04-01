@@ -57,7 +57,7 @@ def otherEquilibrium(rho,u,w,c):
         feq[i,:,:] = rho * w[i] * (1.+cu[i]+0.5*cu[i]**2-usqr)
     return feq
 
-def collisionTwo(f,feq,omega):
+def collision(f,feq,omega):
 
     # f[9,M,N]  first dimension is k
     # u[2,M,N]  first dimension is u and v
@@ -90,9 +90,9 @@ def collisionTwo(f,feq,omega):
 
         newf[k] = (f[k]*oneminomega) + (feq[k] * omega)
 
-    return newf
+        return newf
 
-def collision(f,feq,omega):
+def collisionTwo(f,feq,omega):
     oneminomega = 1. - omega
     return (f*oneminomega) + (feq*omega)
 
@@ -101,47 +101,31 @@ def otherCollision(f,feq,omega):
 
 # streaming
 
-# def streamingThree(f):
-#
-#     m = f.shape[1]
-#     n = f.shape[2]
-#
-#     newf = np.zeros((9,m,n))
-#
-#
-#     k = f.shape[0]
-#     m = f.shape[1]
-#     n = f.shape[2]
-#
-#     newf[0] = f[0]
-#
-#     newf[1,:,1:] = f[1,:,:(n-1)]  # stream one step E
-#     newf[2,:(m-1),:] = f[2,1:,:]  # stream one step N
-#     newf[3,:,:(n-1)] = f[3,:,1:]  # stream one step W
-#     newf[4,1:,:] = f[4,:(m-1),:]  # stream one step S
-#
-#     newf[5,:(m-1),1:] = f[5,1:,:(n-1)]     # stream one step NE
-#     newf[6,:(m-1),:(n-1)] = f[6,1:,1:]     # stream one step NW
-#     newf[7,1:,:(n-1)] = f[7,:(m-1),1:]     # stream one step SW
-#     newf[8,1:,1:] = f[8,:(m-1),:(n-1)]     # stream one step SE
-#
-#     return newf
-
 def streaming(f):
 
-    # f[0] = f[0]
+    m = f.shape[1]
+    n = f.shape[2]
 
-    f[1,:,1:] = f[1,:,:-1]      # stream one step E
-    f[2,:-1,:] = f[2,1:,:]      # stream one step N
-    f[3,:,:-1] = f[3,:,1:]      # stream one step W
-    f[4,1:,:] = f[4,:-1,:]      # stream one step S
+    newf = np.zeros((9,m,n))
 
-    f[5,:-1,1:] = f[5,1:,:-1]           # stream one step NE
-    f[6,:-1,:-1] = f[6,1:,1:]           # stream one step NW
-    f[7,1:,:-1] = f[7,:-1,1:]           # stream one step SW
-    f[8,1:,1:] = f[8,:-1,:-1]     # stream one step SE
 
-    return f
+    k = f.shape[0]
+    m = f.shape[1]
+    n = f.shape[2]
+
+    newf[0] = f[0]
+
+    newf[1,:,1:] = f[1,:,:(n-1)]  # stream one step E
+    newf[2,:(m-1),:] = f[2,1:,:]  # stream one step N
+    newf[3,:,:(n-1)] = f[3,:,1:]  # stream one step W
+    newf[4,1:,:] = f[4,:(m-1),:]  # stream one step S
+
+    newf[5,:(m-1),1:] = f[5,1:,:(n-1)]     # stream one step NE
+    newf[6,:(m-1),:(n-1)] = f[6,1:,1:]     # stream one step NW
+    newf[7,1:,:(n-1)] = f[7,:(m-1),1:]     # stream one step SW
+    newf[8,1:,1:] = f[8,:(m-1),:(n-1)]     # stream one step SE
+
+    return newf
 
 
 
@@ -226,8 +210,8 @@ def northBoundary(f,u0):
 
     rhoN = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
 
-    #s = (1./6) * rhoN * u0[0]
-    s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
+    s = (1./6) * rhoN * u0[0]
+    #s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
 
     f[4,0,1:-1] = f[2,0,1:-1]
     #f[7,0,1:-1] = f[5,0,1:-1] + 0.5 * (f[1,0,1:-1] - f[3,0,1:-1]) - s # TODO is it correct to assume (f1-f3)=0 ?
@@ -235,7 +219,7 @@ def northBoundary(f,u0):
     f[7,0,1:-1] = f[5,0,1:-1] - s
     f[8,0,1:-1] = f[6,0,1:-1] + s
 
-    return f,rhoN
+    return f
 
 
 # calculate density and velocity component
@@ -249,11 +233,9 @@ def densityTwo(f):
 
     return rho
 
-def density(f,rhoN):
-
+def density(f):
     rho = np.sum(f,axis=0)
-    rho[0,1:-1]=rhoN
-
+    rho[0,1:-1] = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2.0 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
     return rho
 
 def otherVelocity(f, rho,c):
@@ -280,10 +262,8 @@ def velocity(f,rho,c):
     fcx = np.zeros((9,m,n))
     fcy = np.zeros((9,m,n))
     for k in range(9):
-        # fcx[k] = f[k]*c[k,0]
-        # fcy[k] = f[k]*c[k,1]
-        fcx[k] = np.dot(f[k],c[k,0])
-        fcy[k] = np.dot(f[k],c[k,1])
+        fcx[k] = f[k]*c[k,0]
+        fcy[k] = f[k]*c[k,1]
 
     # ux = fcx.sum(0)/rho
     # uy = fcy.sum(0)/rho

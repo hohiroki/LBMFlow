@@ -23,7 +23,7 @@ aspect = width / height         # aspect ratio of domain
 
 reynolds_lattice = reynolds     # keep same reynolds
 viscosity_lattice = 0.01        # choose so we keep same reynolds
-velocity_lattice = 0.1          # choose so we keep same reynolds (here we ignore the actual velocity)
+velocity_lattice = 0.1          # choose so we get 100x100 (here we ignore the actual velocity)
 
 omega = 1./(3. * viscosity_lattice + 0.5)
 #omega = (3. * velocity_lattice) + 0.5
@@ -39,12 +39,14 @@ w[5:9] = 1./36.
 
 # grids MxNx9
 f = np.zeros((9,M,N))       # distribution function
+#fnext = np.zeros((9,M,N))
+
 rho = np.zeros((M,N))       # density
 u = np.zeros((2,M,N))       # velocity
 
 # boundary condition
 u0 = np.array((velocity_lattice,0.))
-#u[0,0,1:-1] = velocity_lattice     # load BC into north boundary
+u[0,0,1:-1] = velocity_lattice     # load BC into north boundary
 
 # initial condition
 rho[:,:] = 5.
@@ -52,6 +54,21 @@ rho[:,:] = 5.
 # unit vectors for D2Q9
 c = np.array(((0,0),(1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,1),(-1,-1),(1,-1)))
 
-
+print 'Reynolds:'+str(reynolds_lattice)
+print 'Aspect:'+str(aspect)
+print 'omega:'+str(omega)
+print 'M:'+str(M)
+print 'N:'+str(N)
+print 'w.shape:'+str(w.shape)
+#print 'w'+str(w)
+print 'u.shape:'+str(u.shape)
+#print 'u'+str(u)
+print 'c.shape:'+str(c.shape)
+print 'c'+str(c)
+print 'rho.shape:'+str(rho.shape)
+#print 'rho:'
+#print rho
+print 'weights:'+str(w)
+print 'u0:'+str(u0)
 
 

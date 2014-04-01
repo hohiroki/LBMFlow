@@ -76,11 +76,12 @@ feq = np.random.random((9,M,N))
 print 'feq changed to random'
 print feq.shape
 
-col1 = collision(f,feq,omega)
-col2 = collisionTwo(f,feq,omega)
-col3 = otherCollision(f,feq,omega)
+
+col1 = collision(f,feq,fnext,omega)
+col2 = collisionTwo(f,feq,fnext,omega)
+#col3 = otherCollision(f,feq,omega)
 print 'coldiff:'
-print (col1-col3).sum()
+print (col1-col2).sum()
 
 den1 = density(f)
 den2 = densityTwo(f)
@@ -88,11 +89,9 @@ den2 = densityTwo(f)
 print 'dendiff:'
 print (den1-den2).sum()
 
-stream1 = streaming(f)
-stream2 = streamingTwo(f)
-
-
-print 'streamdiff:'
-print (stream1-stream2).sum()
+# stream1 = streaming(f)
+# stream2 = streamingTwo(f)
+# print 'streamdiff:'
+# print (stream1-stream2).sum()
 
 
