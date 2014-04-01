@@ -54,6 +54,24 @@ rho[:,:] = 5.
 # unit vectors for D2Q9
 c = np.array(((0,0),(1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,1),(-1,-1),(1,-1)))
 
+# sim length
+nsteps = 20000
+
+
+# for statistics collection
+rhosum_bound = np.zeros((5,nsteps+1))     # 0-4 Tot E N W S
+rhosum_sect = np.zeros((2,nsteps+1))      # 0-1 horz vert
+
+rhosum_bound[0,0] = rho.sum()           # total
+rhosum_bound[1,0] = rho[:,-1].sum()     # E
+rhosum_bound[2,0] = rho[0,:].sum()      # N
+rhosum_bound[3,0] = rho[:,0].sum()      # W
+rhosum_bound[4,0] = rho[-1,:].sum()     # S
+
+rhosum_sect[0,0] = rho[M/2,:].sum()   # horz
+rhosum_sect[1,0] = rho[:,N/2].sum()   # vert
+
+
 print 'Reynolds:'+str(reynolds_lattice)
 print 'Aspect:'+str(aspect)
 print 'omega:'+str(omega)

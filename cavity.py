@@ -26,11 +26,6 @@ def equilibrium(rho,u,w,c):
 
     for k in range(0,9):
 
-        #ckTuij = 3.*((cx * u[0]) + (cy * u[1]))
-        #uijTuij = u[0]**2 + u[1]**2
-
-        # feq[k,:,:] = (rho * wk * (1. + (3. * ckTuij) + (4.5 * np.square(ckTuij)) - (1.5 * uijTuij) ))
-
         feq[k] = rho * w[k] * (1. + cTu[k] + (0.5 * np.square(cTu[k])) - uTu )
 
     return feq
@@ -42,13 +37,6 @@ def otherEquilibrium(rho,u,w,c):
 
     cu = 3.0 * np.dot(c,u.transpose(1,0,2))
     #cu = np.dot(c,u.transpose(1,0,2))
-
-    # CU = np.zeros((9,nx,ny))
-    # for i in range(9):
-    #     CU[i] = 3.*(c[i,0]*u[0] + c[i,1]*u[1])
-    #
-    # print 'diff cu-CU:'
-    # print (cu-CU).sum()
 
     usqr = 3./2.*(u[0]**2+u[1]**2)
     feq = np.zeros((9,nx,ny))
@@ -207,11 +195,6 @@ def southBoundary(f):
     return f
 
 def northBoundary(f,u0):
-    # f[9,M,N]  first dimension is k
-    # u[2,M,N]  first dimension is u and v
-    # u0[2]     BC x and y
-
-    # calculate three unknown fk and rhoN
 
     rhoN = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
 
@@ -246,17 +229,6 @@ def velocity(f,rho,c):
     m = rho.shape[0]
     n = rho.shape[1]
 
-    # f[9,M,N]  first dimension is k
-    # rho[M,N]
-    # u[2,M,N]  first dimension is u and v
-    # c[9,2]    first dimension is k, second is cx and cy
-
-    # u[:] = 0.   # set all velocities to 0
-
-    # helpers for clarity
-    # uij = u[0,:,:]
-    # vij = u[1,:,:]
-
     fcx = np.zeros((9,m,n))
     fcy = np.zeros((9,m,n))
     for k in range(9):
@@ -265,23 +237,6 @@ def velocity(f,rho,c):
         fcx[k] = np.dot(f[k],c[k,0])
         fcy[k] = np.dot(f[k],c[k,1])
 
-
-
-    # ux = fcx.sum(0)/rho
-    # uy = fcy.sum(0)/rho
-
-    # cx = c[:,0]
-    # cy = c[:,1]
-    #
-    # for k in range(0,9):
-    #
-    #     u[0,:,:] += f[k,:,:] * cx[k]
-    #     u[1,:,:] += f[k,:,:] * cy[k]
-
-    #u /= rho
-
     return np.array((fcx.sum(0),fcy.sum(0)))/rho
-    #return np.dot(c.transpose(), f.transpose((1,0,2)))/rho
-
 
 

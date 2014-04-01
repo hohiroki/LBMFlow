@@ -12,32 +12,6 @@ from pylab import *
 from cavity_params import *
 from cavity import *
 
-nsteps = 20000
-
-rhosum_bound = np.zeros((5,nsteps+1))     # 0-4 Tot E N W S
-rhosum_sect = np.zeros((2,nsteps+1))      # 0-1 horz vert
-
-rhosum_bound[0,0] = rho.sum()           # total
-rhosum_bound[1,0] = rho[:,-1].sum()     # E
-rhosum_bound[2,0] = rho[0,:].sum()      # N
-rhosum_bound[3,0] = rho[:,0].sum()      # W
-rhosum_bound[4,0] = rho[-1,:].sum()     # S
-
-rhosum_sect[0,0] = rho[M/2,:].sum()   # horz
-rhosum_sect[1,0] = rho[:,N/2].sum()   # vert
-
-steparray = np.linspace(0,nsteps+1,num=nsteps+1)
-
-print 'steparray.shape'
-print steparray.shape
-
-print 'rhosum_bound.shape'
-print rhosum_bound.shape
-print rhosum_bound[0].shape
-
-print 'sum f:'+str(f.sum())
-print 'sum rho:'+str(rho.sum())
-#print 'sum feq:'+str(feq.sum())
 
 for step in range(0,nsteps):
 
@@ -54,6 +28,7 @@ for step in range(0,nsteps):
     rho = density(f,rhoN)
     u = fasterVelocity(f,rho,c)
 
+    # gather statistics
     rhosum_bound[0,step+1] = rho.sum()           # total
     rhosum_bound[1,step+1] = rho[:,-1].sum()     # E
     rhosum_bound[2,step+1] = rho[0,:].sum()      # N
@@ -72,6 +47,8 @@ for step in range(0,nsteps):
 
 
 ##########################################################
+
+steparray = np.linspace(0,nsteps+1,num=nsteps+1)
 
 plt.figure(7)
 Q = quiver( np.flipud(u[0]),np.flipud(u[1]))
