@@ -255,11 +255,19 @@ def northBoundary(f,u0):
 def density(f,rhoN):
 
     rho = np.sum(f,axis=0)
-    rho[0,1:-1]=rhoN
+    rhoNN = f[0,0,1:] + f[1,0,1:] + f[3,0,1:] + (2 * (f[2,0,1:] + f[5,0,1:] + f[6,0,1:]))
+    rho[0,1:]=rhoNN
+
+    #rho = np.sum(f,axis=0)
+    #rho[0,1:-1]=rhoN
 
     return rho
 
 def fasterVelocity(f,rho,c):
+
+    # vel = np.dot(c.transpose(), f.transpose((1,0,2)))/rho
+    # vel[:,0,1:] = u[:,0,1:]
+    # vel[:,:,0] = u[:,:,0]
 
     return np.dot(c.transpose(), f.transpose((1,0,2)))/rho
 
@@ -280,3 +288,34 @@ def velocity(f,rho,c):
     return np.array((fcx.sum(0),fcy.sum(0)))/rho
 
 
+# def streamfunction(u,rho):
+#
+#     m = rho.shape[0]
+#     n = rho.shape[1]
+#     v = u[1]
+#
+#     strf = np.zeros((m,n))
+#
+#     for i in range(n):
+#         rhoav = 0.5*(rho[-1,i])
+#
+#         if i != 0:
+#             rhoav = 0.5*(rho[-1,i-1]+rho[-1,i])
+#             strf[-1,i] = strf[-1,i-1]-rhoav*0.5*(v[-1,i-1]+v[-1,i])
+#         for j in range(1,m):
+#
+#
+#     rhoav = rho[-1,:].copy()
+#     rhoav[1:] += rho[-1,:-1]
+#     rhoav *= 0.5
+#
+#     s = 0.5*rhoav*(v[-1,:-1] + v[-1,1:])
+#
+#     strf[-1:,1:]
+#
+#        t = strf[-1,1:].copy()
+#
+#
+#
+#
+#     return strf

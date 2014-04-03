@@ -72,7 +72,7 @@ mat_dict = {'u':u[0],'v':u[1],
 timestamp = time.time()
 timestamp_formatted = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d_%H.%M.%S')
 
-mat_filename = 'Re1000_MN129_'+str(nsteps)+'_'+timestamp_formatted
+mat_filename = 'C2lb_'+str(nsteps)+'_'+timestamp_formatted
 
 sio.savemat(mat_filename,mat_dict,appendmat=True)
 

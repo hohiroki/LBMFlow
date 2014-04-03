@@ -21,7 +21,7 @@ N = int(aspect * M)     # lattices in x direction, we want deltax = deltay
 
 vel_in_lattice = vel_in * 10    # choose so we can keep the other values same (sane?)
 reynolds_lattice = reynolds     # keep this same as macroscale
-viscosity_lattice = vel_in_lattice * M / reynolds_lattice   # use deltax = 1 so L = N (discretized channel_length)
+viscosity_lattice = vel_in_lattice * M / reynolds_lattice   # use deltax = 1 so L = N (discretized width)
 
 
 

@@ -16,14 +16,16 @@ vel_ph = 6.0           # moving lid m/s
 height = 0.2     # height of cavity m
 width = 0.2      # width of cavity m
 
-reynolds = vel_ph * height / viscosity    # macroscale reynolds number
+#reynolds = vel_ph * height / viscosity    # macroscale reynolds number
+reynolds = 1000
 
 # LBM values
 aspect = width / height         # aspect ratio of domain
 
 reynolds_lattice = reynolds     # keep same reynolds
-viscosity_lattice = 0.01        # choose so we keep same reynolds
-velocity_lattice = 0.1          # choose so we get 100x100 (here we ignore the actual velocity)
+viscosity_lattice = 0.01        # choose so we keep same reynolds 1000->0.01
+velocity_lattice = 0.0775          # choose so we get 100x100 (here we ignore the actual velocity)
+
 rho0 = 5.0
 
 omega = 1./(3. * viscosity_lattice + 0.5)   # omega = 1/tau
@@ -36,6 +38,9 @@ w = np.zeros(9)
 w[0] = 4./9.
 w[1:5] = 1./9.
 w[5:9] = 1./36.
+
+#M=M+1
+#N=N+1
 
 # grids MxNx9
 f = np.zeros((9,M,N))       # distribution function
