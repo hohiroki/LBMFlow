@@ -11,12 +11,12 @@ import numpy as np
 # fluid physics
 viscosity = 1.2*1e-3    # kinematic viscosity m2/s (oil at 15 deg C)
 
-velocity = 6.0           # moving lid m/s
+vel_ph = 6.0           # moving lid m/s
 
 height = 0.2     # height of cavity m
 width = 0.2      # width of cavity m
 
-reynolds = velocity * height / viscosity    # macroscale reynolds number
+reynolds = vel_ph * height / viscosity    # macroscale reynolds number
 
 # LBM values
 aspect = width / height         # aspect ratio of domain
@@ -24,9 +24,9 @@ aspect = width / height         # aspect ratio of domain
 reynolds_lattice = reynolds     # keep same reynolds
 viscosity_lattice = 0.01        # choose so we keep same reynolds
 velocity_lattice = 0.1          # choose so we get 100x100 (here we ignore the actual velocity)
+rho0 = 5.0
 
-omega = 1./(3. * viscosity_lattice + 0.5)
-#omega = (3. * velocity_lattice) + 0.5
+omega = 1./(3. * viscosity_lattice + 0.5)   # omega = 1/tau
 
 N = int(round(reynolds_lattice * viscosity_lattice / velocity_lattice))     # lattices in x-direction
 M = int(round(N / aspect))                                                  # lattices in y-direction (want dx = dy)
@@ -49,13 +49,13 @@ u0 = np.array((velocity_lattice,0.))
 u[0,0,1:-1] = velocity_lattice     # load BC into north boundary
 
 # initial condition
-rho[:,:] = 5.
+rho[:,:] = rho0
 
 # unit vectors for D2Q9
 c = np.array(((0,0),(1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,1),(-1,-1),(1,-1)))
 
 # sim length
-nsteps = 20000
+nsteps = 40000
 
 
 # for statistics collection

@@ -6,11 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 #import matplotlib as mp
+import scipy.io as sio
 
 from pylab import *
 
 from cavity_params import *
 from cavity import *
+import time
+import datetime
 
 
 for step in range(0,nsteps):
@@ -38,13 +41,40 @@ for step in range(0,nsteps):
     rhosum_sect[0,step+1] = rho[M/2,:].sum()   # horz
     rhosum_sect[1,step+1] = rho[:,N/2].sum()   # vert
 
-    if (step % 1000) == 0:
         #print 'sum f:'+str(f.sum())
-        print 'sum rho:'+str(rho.sum())
+        #print 'sum rho:'+str(rho.sum())
         #print 'sum feq:'+str(feq.sum())
     if (step % 1000) == 0:
         print 'Done step:'+str(step)
+        print 'sum rho:'+str(rho.sum())
 
+
+##########################################################
+
+# mat_dict = {'nsteps':np.asarray(nsteps),'u':u[0],'v':u[1],'u0':u0[0],'v0':u[1],
+#             'rho0':np.asarray(rho0), 'reynolds':np.asarray(reynolds),
+#             'visc':np.asarray(viscosity), 'vel':np.asarray(velocity),
+#             'visc_lb':np.asarray(viscosity_lattice),
+#             'vel_lb':np.asarray(velocity_lattice), 'rhosum_bound':rhosum_bound,
+#             'rhosum_sect':rhosum_sect}
+
+mat_dict = {'u':u[0],'v':u[1],
+            'u0':u0[0],'v0':u[1],
+            'nsteps':np.asarray(nsteps),
+            'rho0':np.asarray(rho0),
+            'reynolds':np.asarray(reynolds),
+            'visc_ph':np.asarray(viscosity),
+            'vel_ph':np.asarray(vel_ph),
+            'visc_lb':np.asarray(viscosity_lattice),
+            'vel_lb':np.asarray(velocity_lattice),
+            'rhosum_bound':rhosum_bound,'rhosum_sect':rhosum_sect}
+
+timestamp = time.time()
+timestamp_formatted = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d_%H.%M.%S')
+
+mat_filename = 'Clb_'+str(nsteps)+'_'+timestamp_formatted
+
+sio.savemat(mat_filename,mat_dict,appendmat=True)
 
 ##########################################################
 
@@ -67,6 +97,7 @@ norm_u = np.sqrt(u[0]**2 + u[1]**2)
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.imshow(norm_u, cmap=cm.Reds)
+title('norm(velocity)')
 plt.show()
 
 

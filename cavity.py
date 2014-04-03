@@ -43,6 +43,43 @@ def otherEquilibrium(rho,u,w,c):
 
     for i in range(9):
         feq[i,:,:] = rho * w[i] * (1.+cu[i]+0.5*cu[i]**2-usqr)
+
+    return feq
+
+def otherEquilibrium2(rho,u,w,c):
+
+    nx = rho.shape[0]
+    ny = rho.shape[1]
+
+    cu = 3.0 * np.dot(c,u.transpose(1,0,2))
+    #cu = np.dot(c,u.transpose(1,0,2))
+
+    #usqr = 3./2.*(u[0]**2+u[1]**2)
+    #usqr = 3./2.*( np.dot(u[0],u[0]) + np.dot(u[1],u[1]) )
+    usqr = np.square(u).sum(0)
+    feq = np.zeros((9,nx,ny))
+
+    for i in range(9):
+        feq[i,:,:] = rho * w[i] * (1.+cu[i]+0.5*cu[i]**2-1.5*usqr)
+
+    return feq
+
+def otherEquilibrium3(rho,u,w,c):
+
+    nx = rho.shape[0]
+    ny = rho.shape[1]
+
+    tcu = 3.0 * np.dot(c,u.transpose(1,0,2))
+    cu = np.dot(c,u.transpose(1,0,2))
+    #cusqr = 4.5*(np.dot(c,u.transpose(1,0,2))**2)
+    cusqr = np.dot(cu,cu)
+
+    usqr = 1.5*(u[0]**2+u[1]**2)
+    feq = np.zeros((9,nx,ny))
+
+    for i in range(9):
+        feq[i,:,:] = rho * w[i] * (1. + cu[i] + cusqr[i] - usqr)
+
     return feq
 
 # def collisionTwo(f,feq,omega):
@@ -198,14 +235,17 @@ def northBoundary(f,u0):
 
     rhoN = f[0,0,1:-1] + f[1,0,1:-1] + f[3,0,1:-1] + (2 * (f[2,0,1:-1] + f[5,0,1:-1] + f[6,0,1:-1]))
 
-    s = (1./6) * rhoN * u0[0]
-    #s = 0.5 * rhoN * u0[0]    # TODO is this correct? or should it be 1/6?
+    s = (1./6) * rhoN * u0[0]   # we call this alt A
+    #s = 0.5 * rhoN * u0[0]    # alt B
 
     f[4,0,1:-1] = f[2,0,1:-1]
     #f[7,0,1:-1] = f[5,0,1:-1] + 0.5 * (f[1,0,1:-1] - f[3,0,1:-1]) - s # TODO is it correct to assume (f1-f3)=0 ?
     #f[8,0,1:-1] = f[6,0,1:-1] + 0.5 * (f[3,0,1:-1] - f[1,0,1:-1]) + s
-    f[7,0,1:-1] = f[5,0,1:-1] - s
-    f[8,0,1:-1] = f[6,0,1:-1] + s
+    #f[7,0,1:-1] = f[5,0,1:-1] - s
+    #f[8,0,1:-1] = f[6,0,1:-1] + s
+
+    f[7,0,1:-1] = f[5,0,1:-1] + (1./6) * (f[1,0,1:-1] - f[3,0,1:-1]) - s # altC
+    f[8,0,1:-1] = f[6,0,1:-1] + (1./6) * (f[3,0,1:-1] - f[1,0,1:-1]) + s
 
     return f,rhoN
 
